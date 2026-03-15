@@ -18,7 +18,7 @@ export const createTicket = async (req, res) => {
     await inngest.send({
       name: "ticket/created",
       data: {
-        ticketId: (await newTicket)._id.toString(),
+        ticketId: newTicket._id.toString(),
         title,
         description,
         createdBy: req.user._id.toString(),
@@ -47,7 +47,7 @@ export const getTickets = async (req, res) => {
         .select("title description status createdAt")
         .sort({ createdAt: -1 });
     }
-    return res.status(200).json(tickets);
+    return res.status(200).json({ tickets });
   } catch (error) {
     console.error("Error fetching tickets", error.message);
     return res.status(500).json({ message: "Internal Server Error" });
