@@ -17,10 +17,12 @@
   "dependencies": {
     "@inngest/agent-kit": "^0.8.0",
     "bcrypt": "^6.0.0",
+    "bullmq": "^5.71.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "inngest": "^3.44.2",
+    "ioredis": "^5.10.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.15.1",
     "nodemailer": "^7.0.3"

@@ -1,22 +1,12 @@
-import brcypt from "bcrypt";
+import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/user.js";
-import { inngest } from "../inngest/client.js";
 
 export const signup = async (req, res) => {
   const { email, password, skills = [] } = req.body;
   try {
-    const hashed = await brcypt.hash(password, 10);
+    const hashed = await bcrypt.hash(password, 10);
     const user = await User.create({ email, password: hashed, skills });
-
-    //Fire inngest event
-
-    await inngest.send({
-      name: "user/signup",
-      data: {
-        email,
-      },
-    });
 
     const token = jwt.sign(
       { _id: user._id, role: user.role },
@@ -63,7 +53,7 @@ export const logout = async (req, res) => {
     });
     res.json({ message: "Logout successfully" });
   } catch (error) {
-    res.status(500).json({ error: "Login failed", details: error.message });
+    res.status(500).json({ error: "Logout failed", details: error.message });
   }
 };
 
