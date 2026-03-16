@@ -40,6 +40,7 @@ export const login = async (req, res) => {
 
     res.json({ user, token });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "Login failed", details: error.message });
   }
 };
@@ -53,6 +54,7 @@ export const logout = async (req, res) => {
     });
     res.json({ message: "Logout successfully" });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "Logout failed", details: error.message });
   }
 };
@@ -72,6 +74,7 @@ export const updateUser = async (req, res) => {
     );
     return res.json({ message: "User updated successfully" });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "Update failed", details: error.message });
   }
 };
@@ -85,6 +88,7 @@ export const getUsers = async (req, res) => {
     const users = await User.find().select("-password");
     return res.json(users);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "Update failed", details: error.message });
   }
 };
