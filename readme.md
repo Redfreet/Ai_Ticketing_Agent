@@ -7,6 +7,6 @@ A smart ticket management system that uses AI to automatically categorize, prior
 - **Backend:** Node.js with Express
 - **Database:** MongoDB
 - **Authentication:** JWT (JSON Web Tokens)
-- **Background Jobs:** Inngest
+- **Background Jobs:** BullMQ and Redis
 - **AI Integration:** Google Gemini API
 - **Email Service:** Nodemailer with Mailtrap
