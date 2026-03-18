@@ -1,83 +1,60 @@
-import { createAgent, gemini, openai } from "@inngest/agent-kit";
+import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 
-// const analyzeTicket = async (ticket, step) => {
-//   const supportAgent = createAgent({
-//     model: gemini({
-//       model: "gemini-2.0-flash",
-//       apiKey: process.env.GEMINI_API_KEY,
-//     }),
-//     name: "AI Ticket Triage Assistant",
-//     system: `You are an expert AI assistant that processes technical support tickets.
-
-// Your job is to:
-// 1. Summarize the issue.
-// 2. Estimate its priority.
-// 3. Provide helpful notes and resource links for human moderators.
-// 4. List relevant technical skills required.
-
-// IMPORTANT:
-// - Respond with *only* valid raw JSON.
-// - Do NOT include markdown, code fences, comments, or any extra formatting.
-// - The format must be a raw JSON object.
-
-// Repeat: Do not wrap your output in markdown or code fences.`,
-//   });
-
-//   const response = await supportAgent.run(
-//     `You are a ticket triage agent. Only return a strict JSON object with no extra text, headers, or markdown.
-
-// Analyze the following support ticket and provide a JSON object with:
-
-// - summary: A short 1-2 sentence summary of the issue.
-// - priority: One of "low", "medium", or "high".
-// - helpfulNotes: A detailed technical explanation that a moderator can use to solve this issue. Include useful external links or resources if possible.
-// - relatedSkills: An array of relevant skills required to solve the issue (e.g., ["React", "MongoDB"]).
-
-// Respond ONLY in this JSON format and do not include any other text or markdown in the answer:
-
-// {
-// "summary": "Short summary of the ticket",
-// "priority": "high",
-// "helpfulNotes": "Here are useful tips...",
-// "relatedSkills": ["React", "Node.js"]
-// }
-
-// ---
-
-// Ticket information:
-
-// - Title: ${ticket.title}
-// - Description: ${ticket.description}`,
-//   );
-
-//   const raw = response.output[0].context;
-
-//   try {
-//     const match = raw.match(/```json\s*([\s\S]*?)\s*```/i);
-//     const jsonString = match ? match[1] : raw.trim();
-//     return JSON.parse(jsonString);
-//   } catch (e) {
-//     console.log("Failed to parse JSON from AI response" + e.message);
-//     return null;
-//   }
-// };
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const analyzeTicket = async (ticket) => {
-  console.log(`Analyzing ticket titled "${ticket.title}"...`);
+  console.log(`Sending ticket to Gemini: "${ticket.title}"`);
 
-  await new Promise((resolve) => setTimeout(resolve, 2000));
+  try {
+    const schema = {
+      type: SchemaType.OBJECT,
+      properties: {
+        summary: {
+          type: SchemaType.STRING,
+          description: "A short 1-2 sentence summary of the issue.",
+        },
+        priority: {
+          type: SchemaType.STRING,
+          description: "Must be exactly 'low', 'medium', or 'high'.",
+        },
+        helpfulNotes: {
+          type: SchemaType.STRING,
+          description:
+            "A detailed technical explanation that a moderator can use to solve this issue. Include useful external links or resources if possible.",
+        },
+        relatedSkills: {
+          type: SchemaType.ARRAY,
+          items: { type: SchemaType.STRING },
+          description:
+            "An array of relevant skills required to solve the issue (e.g., ['React', 'MongoDB']).",
+        },
+      },
+      required: ["summary", "priority", "helpfulNotes", "relatedSkills"],
+    };
 
-  const mockResponse = {
-    summary: "This is a simulated AI summary of the technical issue.",
-    priority: "high",
-    helpfulNotes:
-      "Check the backend connection and ensure your environment variables are set correctly.",
-    relatedSkills: ["Node.js", "React", "MongoDB", "AWS"],
-  };
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash",
+      generationConfig: {
+        responseMimeType: "application/json",
+        responseSchema: schema,
+      },
+    });
 
-  console.log("returning fake JSON response!");
+    const prompt = `Analyze the following support ticket and extract the required triage data:
+    Title: ${ticket.title}
+    Description: ${ticket.description}`;
 
-  return mockResponse;
+    const result = await model.generateContent(prompt);
+    const responseText = result.response.text();
+
+    return JSON.parse(responseText);
+  } catch (error) {
+    console.error(
+      "[AI Worker] Failed to fetch or parse AI response:",
+      error.message,
+    );
+    return null;
+  }
 };
 
 export default analyzeTicket;

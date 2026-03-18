@@ -15,12 +15,15 @@
     "nodemon": "^3.1.10"
   },
   "dependencies": {
+    "@google/genai": "^1.46.0",
+    "@google/generative-ai": "^0.24.1",
     "@inngest/agent-kit": "^0.8.0",
     "bcrypt": "^6.0.0",
     "bullmq": "^5.71.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "groq-sdk": "^1.1.1",
     "inngest": "^3.44.2",
     "ioredis": "^5.10.0",
     "jsonwebtoken": "^9.0.2",
